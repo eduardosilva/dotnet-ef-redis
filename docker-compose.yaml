@@ -1,0 +1,34 @@
+services:
+  app:
+    container_name: dotnet-ef-redis
+    image: mcr.microsoft.com/dotnet/sdk:7.0
+    volumes:
+      - .:/app
+      - ~/.nuget/packages:/root/.nuget/packages
+    ports:
+      - 5000:5000
+      - 5001:5001
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    command: bash -c "dotnet watch run --project ./app/ --urls=http://0.0.0.0:5000"
+    depends_on:
+      - db
+
+  db:
+    container_name: dotnet-ef-redis-db
+    image: bitnami/postgresql:15.3.0
+    restart: always
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'dotnet-ef-redis-db'
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'pg_data:/bitnami/postgresql'
+
+volumes:
+  pg_data:
+    driver: local
